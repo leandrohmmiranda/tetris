@@ -1,1 +1,4 @@
 py3 tetris.py
+py3 tetris-reduzido.py
+python tetris.py
+python tetris-reduzido.py
