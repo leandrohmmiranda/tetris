@@ -52,27 +52,23 @@ class Tetris:
         self.figure = Figure(3, 0)
 
     def intersects(self):
-        intersection = False
-        for i in range(4):
-            for j in range(4):
-                if i * 4 + j in self.figure.image():
-                    if (
-                        i + self.figure.y > self.height - 1
-                        or j + self.figure.x > self.width - 1
-                        or j + self.figure.x < 0
-                        or self.field[i + self.figure.y][j + self.figure.x] > 0
-                    ):
-                        intersection = True
-        return intersection
+        return any(
+            i + self.figure.y > self.height - 1
+            or j + self.figure.x > self.width - 1
+            or j + self.figure.x < 0
+            or self.field[i + self.figure.y][j + self.figure.x] > 0
+            for i in range(4)
+            for j in range(4)
+            if i * 4 + j in self.figure.image()
+        )
 
     def break_lines(self):
-        lines = 0
+        lines = sum(all(self.field[i]) for i in range(1, self.height))
+        self.score += lines ** 2
         for i in range(1, self.height):
             if all(self.field[i]):
-                lines += 1
                 for i1 in range(i, 1, -1):
                     self.field[i1] = self.field[i1 - 1][:]
-        self.score += lines ** 2
 
     def go_space(self):
         while not self.intersects():
@@ -129,8 +125,7 @@ while not done:
     if game.figure is None:
         game.new_figure()
     counter += 1
-    if counter > 100000:
-        counter = 0
+    counter %= 100000
     if counter % (fps // game.level // 2) == 0 or pressing_down:
         if game.state == "start":
             game.go_down()
@@ -143,10 +138,8 @@ while not done:
                 game.rotate()
             if event.key == pygame.K_DOWN:
                 pressing_down = True
-            if event.key == pygame.K_LEFT:
-                game.go_side(-1)
-            if event.key == pygame.K_RIGHT:
-                game.go_side(1)
+            if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
+                game.go_side(-1 if event.key == pygame.K_LEFT else 1)
             if event.key == pygame.K_SPACE:
                 game.go_space()
             if event.key == pygame.K_ESCAPE:
