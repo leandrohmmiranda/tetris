@@ -67,8 +67,7 @@ class Tetris:
         self.score += lines ** 2
         for i in range(1, self.height):
             if all(self.field[i]):
-                for i1 in range(i, 1, -1):
-                    self.field[i1] = self.field[i1 - 1][:]
+                self.field[i] = self.field[i - 1][:]
 
     def go_space(self):
         while not self.intersects():
@@ -83,9 +82,9 @@ class Tetris:
             self.freeze()
 
     def freeze(self):
-        for i in range(4):
-            for j in range(4):
-                if i * 4 + j in self.figure.image():
+        for i, row in enumerate(self.figure.image()):
+            for j, value in enumerate(row):
+                if value:
                     self.field[i + self.figure.y][j + self.figure.x] = self.figure.color
         self.break_lines()
         self.new_figure()
@@ -133,21 +132,19 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        if event.type == pygame.KEYDOWN:
+        elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 game.rotate()
-            if event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN:
                 pressing_down = True
-            if event.key in (pygame.K_LEFT, pygame.K_RIGHT):
+            elif event.key in (pygame.K_LEFT, pygame.K_RIGHT):
                 game.go_side(-1 if event.key == pygame.K_LEFT else 1)
-            if event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE:
                 game.go_space()
-            if event.key == pygame.K_ESCAPE:
+            elif event.key == pygame.K_ESCAPE:
                 game.__init__(20, 10)
-
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_DOWN:
-                pressing_down = False
+        elif event.type == pygame.KEYUP and event.key == pygame.K_DOWN:
+            pressing_down = False
 
     screen.fill(WHITE)
 
